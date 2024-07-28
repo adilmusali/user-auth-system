@@ -6,13 +6,13 @@ import HomePage from '@/components/HomePage.vue';
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: HomePage
-  },
-  {
-    path: '/login',
     name: 'UserLogin',
     component: UserLogin
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: HomePage
   },
   {
     path: '/register',

@@ -12,12 +12,14 @@
       </div>
       <button type="submit">Login</button>
       <p>{{ message }}</p>
+      <router-link to="/register">Register</router-link>
     </form>
   </div>
 </template>
 
 <script>
 import axios from 'axios';
+// import { useRouter } from 'vue-router';
 
 export default {
   name: 'UserLogin',
@@ -31,13 +33,13 @@ export default {
   methods: {
     async login() {
       try {
-        const response = await axios.post('/api/auth/login', {
+        const response = await axios.post('http://localhost:5000/api/auth/login', {
           email: this.email,
           password: this.password
         });
-        this.message = 'Login successful!';
-        // Store the token or handle successful login
+        
         localStorage.setItem('token', response.data.token);
+        this.$router.push('/home');
       } catch (error) {
         this.message = error.response.data.msg;
       }

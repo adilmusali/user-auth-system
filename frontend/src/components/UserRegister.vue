@@ -16,6 +16,7 @@
         </div>
         <button type="submit">Register</button>
         <p>{{ message }}</p>
+        <router-link to="/">Login</router-link>
       </form>
     </div>
   </template>
@@ -36,7 +37,7 @@
     methods: {
       async register() {
         try {
-          await axios.post('/api/auth/register', {
+          await axios.post('http://localhost:5000/api/auth/register', {
             name: this.name,
             email: this.email,
             password: this.password
