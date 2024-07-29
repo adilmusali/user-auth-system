@@ -1,57 +1,57 @@
 <template>
-    <div class="register">
-      <h2>Register</h2>
-      <form @submit.prevent="register">
-        <div>
-          <label for="name">Name:</label>
-          <input type="text" v-model="name" required />
-        </div>
-        <div>
-          <label for="email">Email:</label>
-          <input type="email" v-model="email" required />
-        </div>
-        <div>
-          <label for="password">Password:</label>
-          <input type="password" v-model="password" required />
-        </div>
-        <button type="submit">Register</button>
-        <p>{{ message }}</p>
-        <router-link to="/">Login</router-link>
-      </form>
-    </div>
-  </template>
-  
-  <script>
-  import axios from 'axios';
-  
-  export default {
-    name: 'UserRegister',
-    data() {
-      return {
-        name: '',
-        email: '',
-        password: '',
-        message: ''
-      };
-    },
-    methods: {
-      async register() {
-        try {
-          await axios.post('http://localhost:5000/api/auth/register', {
-            name: this.name,
-            email: this.email,
-            password: this.password
-          });
-          this.message = 'Registration successful!';
-        } catch (error) {
-          this.message = error.response.data.msg;
-        }
+  <div class="register">
+    <h2>Register</h2>
+    <form @submit.prevent="register">
+      <div>
+        <label for="name">Name:</label>
+        <input type="text" v-model="name" placeholder="Name" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" v-model="email" placeholder="Email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" v-model="password" placeholder="Password" required />
+      </div>
+      <button type="submit">Register</button>
+      <p>{{ message }}</p>
+      <router-link to="/">Login</router-link>
+    </form>
+  </div>
+</template>
+
+<script>
+import axios from 'axios';
+
+export default {
+  name: 'UserRegister',
+  data() {
+    return {
+      name: '',
+      email: '',
+      password: '',
+      message: ''
+    };
+  },
+  methods: {
+    async register() {
+      try {
+        await axios.post('http://localhost:5000/api/auth/register', {
+          name: this.name,
+          email: this.email,
+          password: this.password
+        });
+        this.message = 'Registration successful!';
+        this.$router.push('/'); // Redirect to login page
+      } catch (error) {
+        this.message = error.response.data.msg;
       }
     }
-  };
-  </script>
-  
-  <style scoped>
-  /* Add your styles here */
-  </style>
-  
+  }
+};
+</script>
+
+<style scoped>
+/* Add your styles here */
+</style>
