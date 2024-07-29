@@ -12,7 +12,8 @@ const routes = [
   {
     path: '/home',
     name: 'Home',
-    component: HomePage
+    component: HomePage,
+    meta: { requiresAuth: true }
   },
   {
     path: '/register',
@@ -24,6 +25,15 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes
+});
+
+router.beforeEach((to, from, next) => {
+  const loggedIn = localStorage.getItem('token');
+  if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
+    next('/');
+  } else {
+    next();
+  }
 });
 
 export default router;

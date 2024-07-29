@@ -46,6 +46,12 @@ export default {
       const decodedToken = jwtDecode(token);
       this.userName = decodedToken.user.name;
     }
+  },
+  mounted() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.$router.push('/');
+    }
   }
 };
 </script>
