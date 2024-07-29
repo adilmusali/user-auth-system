@@ -4,11 +4,11 @@
     <form @submit.prevent="login">
       <div>
         <label for="email">Email:</label>
-        <input type="email" v-model="email" required />
+        <input type="email" v-model="email" placeholder="Email" required />
       </div>
       <div>
         <label for="password">Password:</label>
-        <input type="password" v-model="password" required />
+        <input type="password" v-model="password" placeholder="Password" required />
       </div>
       <button type="submit">Login</button>
       <p>{{ message }}</p>
