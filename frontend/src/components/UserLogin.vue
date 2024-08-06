@@ -51,6 +51,13 @@ export default {
   },
   methods: {
     async login() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailRegex.test(this.email)) {
+        this.message = 'Invalid email format';
+        return;
+      }
+
       try {
         const response = await axios.post('http://localhost:5000/api/auth/login', {
           email: this.email,

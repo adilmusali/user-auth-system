@@ -57,6 +57,19 @@ export default {
   },
   methods: {
     async register() {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
+      if (!emailRegex.test(this.email)) {
+        this.message = 'Invalid email format';
+        return;
+      }
+
+      if (!passwordRegex.test(this.password)) {
+        this.message = 'Password must be at least 8 characters long and contain at least one letter and one number';
+        return;
+      }
+
       try {
         await axios.post('http://localhost:5000/api/auth/register', {
           name: this.name,
