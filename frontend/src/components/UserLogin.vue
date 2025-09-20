@@ -37,7 +37,8 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api, { setAccessToken } from '../api';
+import store from '../store';
 // import { useRouter } from 'vue-router';
 
 export default {
@@ -59,12 +60,13 @@ export default {
       }
 
       try {
-        const response = await axios.post('http://localhost:5000/api/auth/login', {
+        const response = await api.post('/auth/login', {
           email: this.email,
           password: this.password
         });
         
-        localStorage.setItem('token', response.data.token);
+        setAccessToken(response.data.accessToken);
+        store.login();
         this.$router.push('/home');
       } catch (error) {
         this.message = error.response.data.msg;

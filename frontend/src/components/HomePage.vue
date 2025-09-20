@@ -12,7 +12,8 @@
 </template>
 
 <script>
-import { jwtDecode } from 'jwt-decode';
+import api, { setAccessToken } from '../api';
+import store from '../store';
 
 export default {
   data() {
@@ -20,28 +21,26 @@ export default {
       userName: ''
     };
   },
-  computed: {
-    isLoggedIn() {
-      return !!localStorage.getItem('token');
-    }
-  },
   methods: {
-    logout() {
-      localStorage.removeItem('token');
-      this.$router.push('/');
+    async logout() {
+      try {
+        await api.post('/auth/logout');
+      } catch (error) {
+        console.error('Failed to logout on server', error);
+      } finally {
+        setAccessToken('');
+        store.logout();
+        this.$router.push('/');
+      }
     }
   },
-  created() {
-    if (this.isLoggedIn) {
-      const token = localStorage.getItem('token');
-      const decodedToken = jwtDecode(token);
-      this.userName = decodedToken.user.name;
-    }
-  },
-  mounted() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      this.$router.push('/');
+  async mounted() {
+    try {
+      const response = await api.get('/users/me');
+      this.userName = response.data.name;
+    } catch (error) {
+      console.error('Failed to fetch user data:', error);
+      this.logout();
     }
   }
 };

@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '@/components/UserLogin.vue';
 import UserRegister from '@/components/UserRegister.vue';
 import HomePage from '@/components/HomePage.vue';
+import store from '../store';
 
 const routes = [
   {
@@ -28,8 +29,9 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const loggedIn = localStorage.getItem('token');
-  if (to.matched.some(record => record.meta.requiresAuth) && !loggedIn) {
+  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+
+  if (requiresAuth && !store.isLoggedIn) {
     next('/');
   } else {
     next();
