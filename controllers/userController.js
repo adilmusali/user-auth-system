@@ -5,6 +5,23 @@ const User = require('../models/User');
 
 dotenv.config();
 
+const generateTokens = (user) => {
+    const payload = {
+        user: {
+            id: user.id,
+            name: user.name,
+        },
+    };
+
+    // Access Token (expires in 15 minutes)
+    const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+    // Refresh Token (expires in 7 days)
+    const refreshToken = jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn: '7d' });
+
+    return { accessToken, refreshToken };
+};
+
 exports.registerUser = async (req, res) => {
     const { name, email, password } = req.body;
 
@@ -80,24 +97,69 @@ exports.loginUser = async (req, res) => {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
 
-        const payload = {
-            user: {
-                id: user.id,
-                name: user.name
-            },
-        };
+        const { accessToken, refreshToken } = generateTokens(user);
 
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        user.refreshToken = refreshToken;
+        await user.save();
+
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            maxAge: 7 * 24 * 60 * 60 * 1000
+        });
+
+        res.json({ accessToken });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
     }
+};
+
+exports.refreshToken = async (req, res) => {
+    // Get the refresh token from the cookie
+    const token = req.cookies.refreshToken;
+    if (!token) {
+        return res.status(401).json({ msg: 'No token, authorization denied' });
+    }
+
+    try {
+        // Find the user
+        const user = await User.findOne({ refreshToken: token });
+        if (!user) {
+            return res.status(403).json({ msg: 'Invalid refresh token' });
+        }
+
+        // Verify the refresh token
+        jwt.verify(token, process.env.JWT_REFRESH_SECRET, (err, decoded) => {
+            if (err || user.id !== decoded.user.id) {
+                return res.status(403).json({ msg: 'Token verification failed' });
+            }
+
+            // If valid, generate a new access token
+            const payload = { user: { id: user.id, name: user.name } };
+            const accessToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '15m' });
+
+            res.json({ accessToken });
+        });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
+};
+
+exports.logoutUser = async (req, res) => {
+    const token = req.cookies.refreshToken;
+    if (!token) {
+        return res.sendStatus(204);
+    }
+    
+    const user = await User.findOne({ refreshToken: token });
+    if (user) {
+        user.refreshToken = null;
+        await user.save();
+    }
+    
+    res.clearCookie('refreshToken');
+    res.status(200).json({ msg: 'Logged out successfully' });
 };

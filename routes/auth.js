@@ -1,6 +1,6 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
-const { registerUser, loginUser } = require('../controllers/userController');
+const { registerUser, loginUser, refreshToken, logoutUser } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -40,5 +40,15 @@ router.post(
         loginUser(req, res);
     }
 );
+
+// POST api/auth/refresh
+// Refresh access token
+
+router.post('/refresh', refreshToken);
+
+// POST api/auth/logout
+// Logout user
+
+router.post('/logout', logoutUser);
 
 module.exports = router;
