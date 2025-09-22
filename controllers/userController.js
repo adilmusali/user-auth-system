@@ -2,6 +2,8 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 const User = require('../models/User');
+const crypto = require('crypto');
+const { sendVerificationEmail } = require('../config/mailer');
 
 dotenv.config();
 
@@ -46,30 +48,18 @@ exports.registerUser = async (req, res) => {
             password,  // Temporary, will be hashed below
         });
 
+        const token = crypto.randomBytes(32).toString('hex');
+        user.verificationToken = token;
+
         const salt = await bcrypt.genSalt(10);
         user.password = await bcrypt.hash(password, salt);
 
-        // Log the hashed password
-        console.log('Hashed password:', user.password);
-
         await user.save();
 
-        const payload = {
-            user: {
-                id: user.id,
-                name: user.name
-            },
-        };
+        await sendVerificationEmail(user.email, token);
 
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET,
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        res.status(201).json({ msg: 'Registration successful! Please check your email to verify your account.' });
+
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -89,6 +79,10 @@ exports.loginUser = async (req, res) => {
 
         if (!user) {
             return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        if (!user.isVerified) {
+            return res.status(401).json({ msg: 'Please verify your email address before logging in.' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -174,5 +168,25 @@ exports.getMe = async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
+    }
+};
+
+exports.verifyUser = async (req, res) => {
+    try {
+        const { token } = req.params;
+        const user = await User.findOne({ verificationToken: token });
+
+        if (!user) {
+            return res.status(400).send('<h1>Invalid or expired verification link.</h1>');
+        }
+
+        user.isVerified = true;
+        user.verificationToken = null; // Token has been used, so clear it
+        await user.save();
+
+        res.send('<h1>Email successfully verified!</h1><p>You can now close this tab and log in.</p>');
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).send('<h1>Server error during verification.</h1>');
     }
 };

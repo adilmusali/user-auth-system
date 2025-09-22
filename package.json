@@ -21,6 +21,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "mongoose": "^8.5.1",
+    "sib-api-v3-sdk": "^8.5.0",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

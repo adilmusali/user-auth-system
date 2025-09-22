@@ -1,6 +1,6 @@
 const express = require('express');
 const { check, validationResult } = require('express-validator');
-const { registerUser, loginUser, refreshToken, logoutUser } = require('../controllers/userController');
+const { registerUser, loginUser, refreshToken, logoutUser, verifyUser  } = require('../controllers/userController');
 
 const router = express.Router();
 
@@ -50,5 +50,10 @@ router.post('/refresh', refreshToken);
 // Logout user
 
 router.post('/logout', logoutUser);
+
+// GET api/auth/verify/:token
+// Verify email address
+
+router.get('/verify/:token', verifyUser);
 
 module.exports = router;

@@ -3,6 +3,7 @@ import UserLogin from '@/components/UserLogin.vue';
 import UserRegister from '@/components/UserRegister.vue';
 import HomePage from '@/components/HomePage.vue';
 import store from '../store';
+import EmailVerification from '@/components/EmailVerification.vue';
 
 const routes = [
   {
@@ -20,6 +21,11 @@ const routes = [
     path: '/register',
     name: 'UserRegister',
     component: UserRegister
+  },
+  {
+    path: '/verify-email',
+    name: 'EmailVerification',
+    component: EmailVerification,
   }
 ];
 

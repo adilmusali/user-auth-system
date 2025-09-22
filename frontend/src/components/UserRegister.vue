@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import axios from 'axios';
+import api from '../api'
 
 export default {
   name: 'UserRegister',
@@ -71,15 +71,15 @@ export default {
       }
 
       try {
-        await axios.post('http://localhost:5000/api/auth/register', {
+        const response = await api.post('/auth/register', {
           name: this.name,
           email: this.email,
           password: this.password
         });
-        this.message = 'Registration successful!';
-        this.$router.push('/'); // Redirect to login page
+        this.message = response.data.msg; 
+        this.$router.push('/');
       } catch (error) {
-        this.message = error.response.data.msg;
+        this.message = error.response.data.msg || 'An error occurred.';
       }
     }
   }
