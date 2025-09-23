@@ -171,6 +171,46 @@ exports.getMe = async (req, res) => {
     }
 };
 
+exports.updateMe = async (req, res) => {
+    const { name, email, password, oldPassword, avatar } = req.body;
+    try {
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ msg: "User not found!"});
+        }
+
+        if (name) user.name = name;
+        if (avatar) user.avatar = avatar;
+
+        if (email && email !== user.email) {
+            const existingUser = await User.findOne({ email });
+            if (existingUser) {
+                return res.status(400).json({ msg: 'Email already in use!' });
+            }
+            user.email = email;
+            user.isVerified = false;
+        }
+
+        if (password) {
+            if (!oldPassword) {
+                return res.status(400).json({ msg: 'Old password required to set a new password' });
+            }
+            const isMatch = await bcrypt.compare(oldPassword, user.password);
+            if (!isMatch) {
+                return res.status(400).json({ msg: 'Invalid credentials!' });
+            }
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(password, salt);
+        }
+
+        await user.save();
+        res.json(user);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).send("Server Error");
+    }
+}
+
 exports.verifyUser = async (req, res) => {
     try {
         const { token } = req.params;

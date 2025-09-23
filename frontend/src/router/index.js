@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import UserLogin from '@/components/UserLogin.vue';
 import UserRegister from '@/components/UserRegister.vue';
 import HomePage from '@/components/HomePage.vue';
+import UserProfile from '@/components/UserProfile.vue';
 import store from '../store';
 import EmailVerification from '@/components/EmailVerification.vue';
 
@@ -15,6 +16,12 @@ const routes = [
     path: '/home',
     name: 'Home',
     component: HomePage,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/profile',
+    name: 'UserProfile',
+    component: UserProfile,
     meta: { requiresAuth: true }
   },
   {
