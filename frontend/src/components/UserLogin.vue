@@ -39,7 +39,6 @@
 <script>
 import api, { setAccessToken } from '../api';
 import store from '../store';
-// import { useRouter } from 'vue-router';
 
 export default {
   name: 'UserLogin',
@@ -66,7 +65,9 @@ export default {
         });
         
         setAccessToken(response.data.accessToken);
-        store.login();
+        const userResponse = await api.get('/users/me');
+        store.login(userResponse.data);
+        
         this.$router.push('/home');
       } catch (error) {
         this.message = error.response.data.msg;

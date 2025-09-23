@@ -2,11 +2,14 @@ import { reactive } from 'vue';
 
 const store = reactive({
   isLoggedIn: false,
-  login() {
+  user: null,
+  login(userData) {
     this.isLoggedIn = true;
+    this.user = userData;
   },
   logout() {
     this.isLoggedIn = false;
+    this.user = null;
   },
 });
 

@@ -9,7 +9,10 @@ async function initializeApp() {
   try {
     const { data } = await api.post('/auth/refresh');
     setAccessToken(data.accessToken);
-    store.login();
+    
+    const userResponse = await api.get('/users/me');
+    store.login(userResponse.data);
+    
   } catch (error) {
     console.log('No active session found.');
   }
